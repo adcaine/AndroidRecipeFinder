@@ -10,8 +10,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by allancaine on 2015-10-17.
@@ -21,6 +24,8 @@ public class RecipeFinderFragment extends Fragment {
     private static final String TAG = "RecipeFinderFragment";
 
     private RecyclerView mRecyclerView;
+
+    private List<RecipeItem> mRecipeItems = new ArrayList<>();
 
     public static RecipeFinderFragment newInstance(){
         return new RecipeFinderFragment();
@@ -39,19 +44,72 @@ public class RecipeFinderFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_recipe_finder, container, false);
         mRecyclerView = (RecyclerView)v.findViewById(R.id.recipe_finder_recycler_view);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        setupAdapter();
         return v;
     }
 
-    private class FetchRecipesTask extends AsyncTask<Void, Void, Void>{
+    private void setupAdapter(){
+        if(isAdded()){
+            mRecyclerView.setAdapter(new RecipeAdapter(mRecipeItems));
+        }
+    }
 
+    private class RecipeHolder extends RecyclerView.ViewHolder{
 
+        private TextView mTextView;
+
+        public RecipeHolder(View itemView) {
+            super(itemView);
+
+            mTextView = (TextView)itemView;
+
+        }
+
+        public void bindRecipe(RecipeItem item){
+            mTextView.setText(item.toString());
+        }
+    }
+
+    private class RecipeAdapter extends RecyclerView.Adapter<RecipeHolder>{
+
+        private List<RecipeItem> mItems;
+
+        public RecipeAdapter(List<RecipeItem> items){
+            mItems = items;
+        }
 
         @Override
-        protected Void doInBackground(Void... params) {
+        public RecipeHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            return new RecipeHolder(new TextView(getActivity()));
+        }
 
-            new RecipeFetcher().fetchItems();
+        @Override
+        public void onBindViewHolder(RecipeHolder holder, int position) {
+            RecipeItem item = mItems.get(position);
+            holder.bindRecipe(item);
+        }
 
-            return null;
+        @Override
+        public int getItemCount() {
+            return mItems.size();
+        }
+    }
+
+
+
+    private class FetchRecipesTask extends AsyncTask<Void, Void, List<RecipeItem> >{
+
+        @Override
+        protected List<RecipeItem> doInBackground(Void... params) {
+
+            return new RecipeFetcher().fetchItems();
+
+        }
+
+        @Override
+        protected void onPostExecute(List<RecipeItem> items) {
+            mRecipeItems = items;
+            setupAdapter();
         }
     }
 }
