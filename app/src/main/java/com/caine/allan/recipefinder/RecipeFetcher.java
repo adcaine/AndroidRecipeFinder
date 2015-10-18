@@ -24,7 +24,7 @@ public class RecipeFetcher {
 
     private static final String API_KEY = "38a6bccce5ca111197b7b2fd50142388";
 
-    private static final String ENTRY_POINT = "http://www.food2fork.com/api/search";
+    private static final String END_POINT = "http://www.food2fork.com/api/search";
 
     public byte[] getUrlBytes(String urlSpec) throws IOException {
 
@@ -59,15 +59,19 @@ public class RecipeFetcher {
         return new String(getUrlBytes(urlSpec));
     }
 
-    public List<RecipeItem> fetchItems(){
+    public List<RecipeItem> fetchItems(String query){
 
         List<RecipeItem> items = new ArrayList<>();
 
+        if(query == null){
+            return items;
+        }
+
         try {
-            String url = Uri.parse(ENTRY_POINT)
+            String url = Uri.parse(END_POINT)
                     .buildUpon()
                     .appendQueryParameter("key", API_KEY)
-                    .appendQueryParameter("q", "chocolate")
+                    .appendQueryParameter("q", query)
                     .build().toString();
             String jsonString = getUrlString(url);
             Log.i(TAG, "Received JSON " + jsonString);

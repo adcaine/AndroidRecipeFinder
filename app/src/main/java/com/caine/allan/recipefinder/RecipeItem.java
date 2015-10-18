@@ -1,9 +1,10 @@
 package com.caine.allan.recipefinder;
 
 import android.util.Log;
-
 import org.json.JSONException;
 import org.json.JSONObject;
+
+
 
 /**
  * Created by allancaine on 2015-10-17.
@@ -23,9 +24,9 @@ public class RecipeItem {
 
     public RecipeItem(JSONObject jsonObject){
         try {
-            mPublisher = jsonObject.getString("publisher");
+            mPublisher = sanitize(jsonObject.getString("publisher"));
             mf2fURL = jsonObject.getString("f2f_url");
-            mTitle = jsonObject.getString("title");
+            mTitle = sanitize(jsonObject.getString("title"));
             mSourceURL = jsonObject.getString("source_url");
             mRecipeId = jsonObject.getString("recipe_id");
             mImageURL = jsonObject.getString("image_url");
@@ -102,6 +103,10 @@ public class RecipeItem {
 
     @Override
     public String toString() {
-        return mTitle;
+        return mTitle + " by " + mPublisher;
+    }
+
+    public static String sanitize(String str){
+        return str.replaceAll("&nbsp;", " ").replaceAll("&amp;", "&");
     }
 }
